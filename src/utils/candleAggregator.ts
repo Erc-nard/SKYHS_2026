@@ -16,10 +16,13 @@ function getGroupKey(kstDateStr: string, interval: Interval): string {
 }
 
 export function aggregateCandles(candles: Candle[], interval: Interval): Candle[] {
-  if (interval === 'day') return candles
+  const sorted = [...candles].sort((a, b) =>
+    a.candle_date_time_kst.localeCompare(b.candle_date_time_kst)
+  )
+  if (interval === 'day') return sorted
 
   const groups = new Map<string, Candle[]>()
-  for (const c of candles) {
+  for (const c of sorted) {
     const key = getGroupKey(c.candle_date_time_kst, interval)
     if (!groups.has(key)) groups.set(key, [])
     groups.get(key)!.push(c)

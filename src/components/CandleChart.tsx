@@ -21,7 +21,13 @@ export default function CandleChart({ bgCandles, gameCandles, scenarioStartDate 
   const [interval, setInterval] = useState<Interval>('day')
 
   const chartData = useMemo(() => {
+    // 합산 → 날짜순 정렬 → 중복 날짜 제거 (bgCandles와 gameCandles 경계 처리)
     const combined = [...bgCandles, ...gameCandles]
+      .sort((a, b) => a.candle_date_time_kst.localeCompare(b.candle_date_time_kst))
+      .filter((c, i, arr) =>
+        i === 0 ||
+        c.candle_date_time_kst.split('T')[0] !== arr[i - 1].candle_date_time_kst.split('T')[0]
+      )
     return aggregateCandles(combined, interval)
   }, [bgCandles, gameCandles, interval])
 
