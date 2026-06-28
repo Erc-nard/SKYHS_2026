@@ -39,11 +39,23 @@ export default function GameScreen() {
   const midCheckShown = useRef(false)
   const [gaugeDisplayVal, setGaugeDisplayVal] = useState(0)
   const [chartCollapsed, setChartCollapsed] = useState(false)
+  const chartCollapsedRef = useRef(false)
+  const prevScrollYRef = useRef(0)
 
   const handleMobileScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const sy = e.currentTarget.scrollTop
-    if (!chartCollapsed && sy > 60) setChartCollapsed(true)
-    if (chartCollapsed && sy < 20) setChartCollapsed(false)
+    const prev = prevScrollYRef.current
+    prevScrollYRef.current = sy
+
+    if (!chartCollapsedRef.current && sy > 60 && sy > prev) {
+      // 아래로 스크롤할 때만 접기
+      chartCollapsedRef.current = true
+      setChartCollapsed(true)
+    } else if (chartCollapsedRef.current && sy < 8) {
+      // 거의 맨 위로 올라왔을 때만 펼치기
+      chartCollapsedRef.current = false
+      setChartCollapsed(false)
+    }
   }
 
   const scenario = SCENARIOS.find((s) => s.id === scenarioId)!
