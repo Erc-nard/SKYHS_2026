@@ -9,6 +9,12 @@ import EmotionPanel from '@/components/EmotionPanel'
 
 type Phase = 'first' | 'emotion' | 'second'
 
+const PHASE_LABEL: Record<Phase, string> = {
+  first: '① 차트만 보고 결정',
+  emotion: '② 감정 신호 확인 중',
+  second: '③ 최종 결정',
+}
+
 export default function GameScreen() {
   useScenarioLoader()
 
@@ -59,19 +65,16 @@ export default function GameScreen() {
   return (
     <div className="flex h-screen overflow-hidden bg-[#0f0f0f]">
 
-      {/* ── 좌측: 차트 영역 ── */}
-      <div className="flex-1 flex flex-col min-w-0 border-r border-zinc-800">
-        {/* 헤더 */}
-        <div className="flex items-center gap-3 px-4 py-2.5 border-b border-zinc-800">
+      {/* ── 좌측: 차트 (40%) ── */}
+      <div className="w-[40%] flex flex-col border-r border-zinc-800 min-w-0">
+        <div className="flex items-center gap-3 px-3 py-2 border-b border-zinc-800 shrink-0">
           <span className="font-bold text-sm">{scenario.market}</span>
-          <span className="text-zinc-400 text-sm">{turnEndDate} 기준</span>
           {currentPrice > 0 && (
             <span className="text-white font-mono text-sm">
               ₩{currentPrice.toLocaleString()}
             </span>
           )}
         </div>
-        {/* 차트 */}
         <div className="flex-1 min-h-0">
           <CandleChart
             bgCandles={bgCandles}
@@ -81,14 +84,20 @@ export default function GameScreen() {
         </div>
       </div>
 
-      {/* ── 우측: 정보 패널 ── */}
-      <div className="w-[320px] flex flex-col overflow-y-auto bg-[#0f0f0f]">
+      {/* ── 우측: 정보 패널 (60%) ── */}
+      <div className="w-[60%] flex flex-col overflow-y-auto">
 
-        {/* 턴 진행 */}
-        <div className="px-4 py-3 border-b border-zinc-800">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-zinc-400">{scenario.title}</span>
-            <span className="text-xs text-zinc-400">턴 {currentTurn} / {totalTurns}</span>
+        {/* 날짜 + 턴 진행 */}
+        <div className="px-5 py-3 border-b border-zinc-800 shrink-0">
+          <div className="flex items-start justify-between mb-2">
+            <div>
+              <p className="text-2xl font-bold font-mono tracking-wide">{turnEndDate}</p>
+              <p className="text-xs text-zinc-500 mt-0.5">{PHASE_LABEL[phase]}</p>
+            </div>
+            <div className="text-right text-xs text-zinc-500">
+              <p>{scenario.title}</p>
+              <p className="text-zinc-400 mt-0.5">턴 {currentTurn} / {totalTurns}</p>
+            </div>
           </div>
           <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
             <div
@@ -96,74 +105,67 @@ export default function GameScreen() {
               style={{ width: `${(currentTurn / totalTurns) * 100}%` }}
             />
           </div>
-          <div className="mt-2 text-xs text-center text-zinc-500">
-            {phase === 'first' && '① 차트만 보고 결정'}
-            {phase === 'emotion' && '② 감정 신호 확인 중'}
-            {phase === 'second' && '③ 최종 결정'}
-          </div>
         </div>
 
         {/* 평가 자산 */}
-        <div className="px-4 py-3 border-b border-zinc-800">
-          <p className="text-xs text-zinc-500 mb-1">평가 자산</p>
-          <p className="text-xl font-bold font-mono">
-            ₩{totalAsset.toLocaleString()}
-          </p>
-          <p className={`text-xs font-mono mt-0.5 ${profit >= 0 ? 'text-red-400' : 'text-blue-400'}`}>
-            {profit >= 0 ? '+' : ''}{profit.toLocaleString()} ({profitRate >= 0 ? '+' : ''}{profitRate.toFixed(2)}%)
-          </p>
-          <div className="flex gap-4 mt-2 text-xs text-zinc-500">
-            <span>현금 ₩{cash.toLocaleString()}</span>
+        <div className="px-5 py-3 border-b border-zinc-800 shrink-0">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-zinc-500 mb-0.5">평가 자산</p>
+              <p className="text-xl font-bold font-mono">₩{totalAsset.toLocaleString()}</p>
+              <p className={`text-xs font-mono mt-0.5 ${profit >= 0 ? 'text-red-400' : 'text-blue-400'}`}>
+                {profit >= 0 ? '+' : ''}{profit.toLocaleString()} ({profitRate >= 0 ? '+' : ''}{profitRate.toFixed(2)}%)
+              </p>
+            </div>
             {holdings > 0 && (
-              <span>보유 {holdings.toFixed(4)} ({scenario.market.split('-')[1]})</span>
+              <div className="text-right text-xs text-zinc-500">
+                <p>현금 ₩{cash.toLocaleString()}</p>
+                <p className="mt-0.5">보유 {holdings.toFixed(4)}</p>
+                <p className="mt-0.5">평단 ₩{Math.round(holdingsValue / holdings).toLocaleString()}</p>
+              </div>
             )}
           </div>
         </div>
 
-        {/* 액션 영역 */}
-        <div className="px-4 py-3 border-b border-zinc-800">
+        {/* 액션 */}
+        <div className="px-5 py-3 border-b border-zinc-800 shrink-0">
           {phase === 'first' && (
             <>
               <p className="text-xs text-zinc-400 mb-2">
-                <span className="text-yellow-400 font-bold">차트만 보고</span> 결정하세요 (1차)
+                <span className="text-yellow-400 font-bold">차트만 보고</span> 1차 결정하세요
               </p>
               <ActionButtons onSelect={handleFirstChoice} />
             </>
           )}
           {phase === 'emotion' && (
-            <p className="text-xs text-zinc-400 text-center py-2">
-              1차 선택: <span className="text-yellow-400">
+            <p className="text-xs text-zinc-400 text-center py-1">
+              1차 선택:{' '}
+              <span className="text-yellow-400 font-bold">
                 {firstChoice === 'buy' ? '매수' : firstChoice === 'sell' ? '매도' : '보유'}
-              </span> — 감정 신호 확인 후 최종 결정하세요
+              </span>
+              {' '}— 아래 감정 신호를 확인 후 최종 결정하세요
             </p>
           )}
           {phase === 'second' && (
             <>
               <p className="text-xs text-zinc-400 mb-2">
-                감정 신호를 본 뒤 <span className="text-yellow-400 font-bold">최종 결정</span>하세요 (2차)
+                감정 신호를 본 뒤{' '}
+                <span className="text-yellow-400 font-bold">최종 결정</span>하세요
               </p>
               <ActionButtons onSelect={handleSecondChoice} />
             </>
           )}
         </div>
 
-        {/* 감정 신호 (감정 확인 단계에서만) */}
-        {phase === 'emotion' && (
-          <div className="border-b border-zinc-800">
-            <EmotionPanel turnEndDate={turnEndDate} onConfirm={() => setPhase('second')} />
-          </div>
-        )}
-
-        {/* 매매 내역 */}
-        <div className="px-4 py-3 border-b border-zinc-800">
-          <p className="text-xs text-zinc-500 mb-2">매매 내역</p>
-          <TradeHistory />
+        {/* 감정 신호 — 항상 표시, 확인 단계에서 강조 */}
+        <div className={`border-b border-zinc-800 transition-opacity ${phase === 'emotion' ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
+          <EmotionPanel turnEndDate={turnEndDate} onConfirm={() => setPhase('second')} />
         </div>
 
-        {/* 커뮤니티 / 뉴스 (감정 신호 단계 외에도 상시 표시 — 이전 턴 데이터) */}
-        <div className="px-4 py-3">
-          <p className="text-xs text-zinc-500 mb-2">이전 턴 뉴스</p>
-          <p className="text-zinc-600 text-xs">(뉴스 작성 예정)</p>
+        {/* 매매 내역 */}
+        <div className="px-5 py-3">
+          <p className="text-xs text-zinc-500 mb-2">매매 내역</p>
+          <TradeHistory />
         </div>
       </div>
     </div>

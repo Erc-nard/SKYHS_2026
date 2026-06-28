@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { Screen } from '@/App'
 import { Candle } from '@/api/upbit'
 import { FearGreedMap } from '@/api/fearGreed'
+import { NewsMap } from '@/api/cryptoNews'
 
 export type Action = 'buy' | 'sell' | 'hold' | null
 
@@ -24,6 +25,7 @@ interface GameState {
   candles: Candle[]
   bgCandles: Candle[]      // 시나리오 시작 전 1년치 배경 데이터
   fearGreedMap: FearGreedMap
+  newsMap: NewsMap
   isLoading: boolean
   // actions
   setScreen: (screen: Screen) => void
@@ -31,6 +33,7 @@ interface GameState {
   setCandles: (candles: Candle[]) => void
   setBgCandles: (candles: Candle[]) => void
   setFearGreedMap: (map: FearGreedMap) => void
+  setNewsMap: (map: NewsMap) => void
   setLoading: (loading: boolean) => void
   recordFirstChoice: (action: Action) => void
   recordSecondChoice: (action: Action, price: number) => void
@@ -52,6 +55,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   candles: [],
   bgCandles: [],
   fearGreedMap: {},
+  newsMap: {},
   isLoading: false,
 
   setScreen: (screen) => set({ screen }),
@@ -68,11 +72,13 @@ export const useGameStore = create<GameState>((set, get) => ({
       candles: [],
       bgCandles: [],
       fearGreedMap: {},
+      newsMap: {},
     }),
 
   setCandles: (candles) => set({ candles }),
   setBgCandles: (bgCandles) => set({ bgCandles }),
   setFearGreedMap: (fearGreedMap) => set({ fearGreedMap }),
+  setNewsMap: (newsMap) => set({ newsMap }),
   setLoading: (isLoading) => set({ isLoading }),
 
   recordFirstChoice: (action) => {
@@ -131,5 +137,6 @@ export const useGameStore = create<GameState>((set, get) => ({
       candles: [],
       bgCandles: [],
       fearGreedMap: {},
+      newsMap: {},
     }),
 }))
