@@ -59,7 +59,7 @@ export default function EmotionPanel({ scenarioId, turnEndDate, isRevealed, onCo
                 <div key={i} className="px-4 py-4 hover:bg-zinc-900/40 transition-colors">
                   <p className="text-sm font-semibold text-zinc-100 leading-snug mb-1.5">{n.title}</p>
                   <p className="text-xs text-zinc-400 leading-relaxed mb-2">{n.summary}</p>
-                  <p className="text-[10px] text-zinc-600">{n.source} · {turnEndDate}</p>
+                  <p className="text-[10px] text-zinc-600">{n.source} · {n.date ?? turnEndDate}</p>
                 </div>
               )) : (
                 <div className="px-4 py-6 text-zinc-600 text-sm text-center">해당 날짜 뉴스 없음</div>

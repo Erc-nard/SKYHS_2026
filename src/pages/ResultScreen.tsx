@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useGameStore } from '@/store/gameStore'
-import { SCENARIOS, getTurnEndDate } from '@/data/scenarios'
+import { SCENARIOS, getTurnStartDate } from '@/data/scenarios'
 import ResultChart from '@/components/ResultChart'
 
 const EMOTION_TYPES = [
@@ -56,7 +56,7 @@ export default function ResultScreen() {
   const scenario = SCENARIOS.find((s) => s.id === scenarioId)!
 
   const turnDates = Array.from({ length: scenario.totalTurns }, (_, i) =>
-    getTurnEndDate(scenario, i + 1)
+    getTurnStartDate(scenario, i + 1)
   )
 
   const completed = records.filter((r) => r.secondChoice !== null)

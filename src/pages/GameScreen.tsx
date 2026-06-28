@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useGameStore, Action } from '@/store/gameStore'
-import { SCENARIOS, getTurnEndDate } from '@/data/scenarios'
+import { SCENARIOS, getTurnStartDate, getTurnEndDate } from '@/data/scenarios'
 import { useScenarioLoader } from '@/hooks/useScenarioLoader'
 import { useCountUp } from '@/hooks/useCountUp'
 import ResizableLayout from '@/components/ResizableLayout'
@@ -45,7 +45,8 @@ export default function GameScreen() {
   const coinTicker = scenario.market.split('-')[1]
   const visibleCandles = candles.slice(0, currentTurn * scenario.intervalDays)
   const currentPrice = visibleCandles[visibleCandles.length - 1]?.trade_price ?? 0
-  const turnEndDate = getTurnEndDate(scenario, currentTurn)
+  const turnDisplayDate = getTurnStartDate(scenario, currentTurn)   // 헤더 표시용
+  const turnEndDate = getTurnEndDate(scenario, currentTurn)          // 뉴스·공탐지수 조회용
 
   const holdingsValue = holdings * currentPrice
   const totalAsset = cash + holdingsValue
@@ -145,7 +146,7 @@ export default function GameScreen() {
       <div className="px-4 py-3 border-b border-zinc-800 shrink-0">
         <div className="flex items-start justify-between mb-2">
           <div>
-            <p className="text-2xl font-bold font-mono tracking-wide">{turnEndDate}</p>
+            <p className="text-2xl font-bold font-mono tracking-wide">{turnDisplayDate}</p>
             <p className="text-xs text-zinc-500 mt-0.5">{scenario.title} · 턴 {currentTurn}/{totalTurns}</p>
           </div>
           <span className={`text-[10px] px-2 py-0.5 rounded-full mt-1 transition-colors ${
