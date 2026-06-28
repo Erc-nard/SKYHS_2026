@@ -1,46 +1,27 @@
 import { useState } from 'react'
-import { useGameStore } from '@/store/gameStore'
 import { SCENARIO_NEWS } from '@/data/scenarioNews'
 import { SCENARIO_COMMUNITY } from '@/data/scenarioCommunity'
 
 interface Props {
   scenarioId: number
   turnEndDate: string
-  isRevealed: boolean   // phase === 'emotion' | 'second' 일 때만 공개
+  isRevealed: boolean
   onConfirm: () => void
-  showConfirm: boolean  // phase === 'emotion' 일 때만 버튼 표시
+  showConfirm: boolean
 }
 
-type Tab = 'news' | 'community' | 'fg'
+type Tab = 'news' | 'community'
 
 const TAB_LABELS: Record<Tab, string> = {
   news: '📰 뉴스',
   community: '💬 커뮤니티',
-  fg: '📊 공탐지수',
 }
 
 export default function EmotionPanel({ scenarioId, turnEndDate, isRevealed, onConfirm, showConfirm }: Props) {
   const [tab, setTab] = useState<Tab>('news')
-  const fearGreedMap = useGameStore((s) => s.fearGreedMap)
-
-  const fg = fearGreedMap[turnEndDate]
-  const fgValue = fg?.value ?? null
-  const fgLabel = fg?.classification ?? '데이터 없음'
 
   const news = SCENARIO_NEWS[scenarioId]?.[turnEndDate] ?? []
   const community = SCENARIO_COMMUNITY[scenarioId]?.[turnEndDate] ?? []
-
-  const fgColor =
-    fgValue === null ? 'text-zinc-400'
-    : fgValue >= 60 ? 'text-red-400'
-    : fgValue >= 40 ? 'text-yellow-400'
-    : 'text-blue-400'
-
-  const fgBg =
-    fgValue === null ? 'bg-zinc-800'
-    : fgValue >= 60 ? 'bg-red-900/20'
-    : fgValue >= 40 ? 'bg-yellow-900/20'
-    : 'bg-blue-900/20'
 
   return (
     <div className="flex flex-col h-full">
@@ -106,47 +87,10 @@ export default function EmotionPanel({ scenarioId, turnEndDate, isRevealed, onCo
               )}
             </div>
           )}
-
-          {/* 공탐지수 탭 */}
-          {tab === 'fg' && (
-            <div className="px-4 py-6 flex flex-col items-center gap-4">
-              {fgValue !== null ? (
-                <>
-                  <div className={`w-full rounded-2xl p-6 ${fgBg} border border-zinc-800 text-center`}>
-                    <p className="text-xs text-zinc-500 mb-2">{turnEndDate} 기준</p>
-                    <p className={`text-6xl font-bold ${fgColor} mb-1`}>{fgValue}</p>
-                    <p className={`text-lg font-medium ${fgColor}`}>{fgLabel}</p>
-                  </div>
-                  {/* 게이지 바 */}
-                  <div className="w-full">
-                    <div className="flex justify-between text-[10px] text-zinc-600 mb-1">
-                      <span>극단적 공포 (0)</span>
-                      <span>극단적 탐욕 (100)</span>
-                    </div>
-                    <div className="relative h-3 rounded-full bg-gradient-to-r from-blue-600 via-yellow-400 to-red-500">
-                      <div
-                        className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white border-2 border-zinc-900 shadow"
-                        style={{ left: `calc(${fgValue}% - 8px)` }}
-                      />
-                    </div>
-                    <p className="text-xs text-zinc-500 mt-3 text-center leading-relaxed">
-                      {fgValue >= 75 && '시장이 극도로 탐욕적입니다. 고점 매도 관점을 고려해보세요.'}
-                      {fgValue >= 55 && fgValue < 75 && '탐욕이 지배하는 시장입니다. 추격 매수는 위험할 수 있습니다.'}
-                      {fgValue >= 45 && fgValue < 55 && '중립적인 시장 분위기입니다.'}
-                      {fgValue >= 25 && fgValue < 45 && '공포가 퍼져있습니다. 역발상 매수 관점도 고려해보세요.'}
-                      {fgValue < 25 && '극단적 공포 상태입니다. 과거 데이터상 저점 매수 기회일 수 있습니다.'}
-                    </p>
-                  </div>
-                </>
-              ) : (
-                <p className="text-zinc-600 text-sm">해당 날짜 데이터 없음</p>
-              )}
-            </div>
-          )}
         </div>
       )}
 
-      {/* 최종 결정 버튼 */}
+      {/* 최종 결정하기 버튼 */}
       {showConfirm && isRevealed && (
         <div className="px-4 py-3 border-t border-zinc-800 shrink-0">
           <button
