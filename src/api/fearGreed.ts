@@ -14,7 +14,7 @@ export interface FearGreedEntry {
 export type FearGreedMap = Record<string, FearGreedEntry> // "YYYY-MM-DD" → entry
 
 export async function fetchFearGreedHistory(limit = 2200): Promise<FearGreedMap> {
-  const { data } = await axios.get('https://api.alternative.me/fng/', {
+  const { data } = await axios.get('/api/feargreed', {
     params: { limit, format: 'json' },
   })
 

@@ -2,7 +2,6 @@ import { useEffect } from 'react'
 import { useGameStore } from '@/store/gameStore'
 import { fetchDayCandles, Candle } from '@/api/upbit'
 import { fetchFearGreedHistory } from '@/api/fearGreed'
-import { fetchScenarioNews } from '@/api/cryptoNews'
 import { SCENARIOS, getScenarioToParam } from '@/data/scenarios'
 
 export function useScenarioLoader() {
@@ -30,22 +29,13 @@ export function useScenarioLoader() {
         bgMidDate.setDate(bgMidDate.getDate() - 200)
         const bgMidTo = bgMidDate.toISOString().split('.')[0] + 'Z'
 
-        // 뉴스 기간 계산
-        const gameEndDate = new Date(scenario.startDate)
-        gameEndDate.setDate(gameEndDate.getDate() + scenario.totalTurns * scenario.intervalDays)
-        const newsCategory = scenario.market.split('-')[1]  // "KRW-DOGE" → "DOGE"
-
-        const [gameCandleData, bg1, bg2, fearGreedMap, newsMap] = await Promise.all([
+        const [gameCandleData, bg1, bg2, fearGreedMap] = await Promise.all([
           fetchDayCandles(scenario.market, toParam, gameCount),
           fetchDayCandles(scenario.market, bgTo, 200),
           fetchDayCandles(scenario.market, bgMidTo, 200),
           fetchFearGreedHistory(2200),
-          fetchScenarioNews(
-            newsCategory,
-            scenario.startDate,
-            gameEndDate.toISOString().split('T')[0]
-          ).catch(() => ({})),  // 뉴스 실패해도 게임 진행
         ])
+        const newsMap = {}
 
         // 1년 전 이후 데이터만 남기고 정렬·중복 제거
         const bgAll = dedup([...bg2, ...bg1]).filter(
