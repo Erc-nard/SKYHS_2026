@@ -41,28 +41,21 @@ export default function ResizableLayout({
 
   return (
     <div ref={containerRef} className="flex h-screen overflow-hidden">
-      {/* 좌측 패널 */}
       <div style={{ width: `${leftPct}%` }} className="flex flex-col overflow-hidden shrink-0">
         {left}
       </div>
-
-      {/* 드래그 핸들 */}
       <div
         onMouseDown={() => {
           dragging.current = true
           document.body.style.cursor = 'col-resize'
           document.body.style.userSelect = 'none'
         }}
-        className="w-1 shrink-0 bg-zinc-800 hover:bg-white active:bg-white cursor-col-resize transition-colors"
+        className="w-1 shrink-0 bg-zinc-200 hover:bg-zinc-400 active:bg-zinc-500 cursor-col-resize transition-colors"
         title="드래그해서 크기 조절"
       />
-
-      {/* 우측 패널 */}
       <div style={{ width: `${100 - leftPct}%` }} className="flex flex-col overflow-hidden shrink-0">
         {right}
       </div>
     </div>
   )
 }
-
-

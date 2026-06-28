@@ -99,15 +99,15 @@ export default function ResultScreen() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen bg-white text-zinc-900">
       <div className="max-w-4xl mx-auto px-5 py-12">
 
         {/* 헤더 */}
         <div className="text-center mb-10">
-          <p className="text-zinc-500 text-sm tracking-widest uppercase mb-3">게임 종료 — 감정 분석 결과</p>
+          <p className="text-zinc-400 text-sm tracking-widest uppercase mb-3">게임 종료 — 감정 분석 결과</p>
           <div className="text-7xl mb-4">{emotionType.emoji}</div>
-          <h1 className="text-4xl font-bold mb-2">{emotionType.name}</h1>
-          <p className="text-zinc-400 max-w-md mx-auto leading-relaxed">{emotionType.desc}</p>
+          <h1 className="text-4xl font-bold mb-2 text-zinc-900">{emotionType.name}</h1>
+          <p className="text-zinc-500 max-w-md mx-auto leading-relaxed">{emotionType.desc}</p>
         </div>
 
         {/* 핵심 지표 */}
@@ -125,22 +125,22 @@ export default function ResultScreen() {
 
         {/* 전체 차트 */}
         <div className="mb-8">
-          <h2 className="text-sm text-zinc-500 mb-3 flex items-center gap-2">
+          <h2 className="text-sm text-zinc-400 mb-3 flex items-center gap-2">
             전체 게임 구간 차트
-            <span className="text-[10px] text-zinc-600">↑ 빨간 = 매수 / 파란 = 매도</span>
+            <span className="text-[10px] text-zinc-400">↑ 빨간 = 매수 / 파란 = 매도</span>
           </h2>
-          <div className="h-[280px] rounded-2xl overflow-hidden border border-zinc-800">
+          <div className="h-[280px] rounded-2xl overflow-hidden border border-zinc-200">
             <ResultChart candles={candles} records={records} turnDates={turnDates} />
           </div>
         </div>
 
         {/* 1차 vs 2차 비교 */}
         <div className="mb-8">
-          <h2 className="text-sm text-zinc-500 mb-3">턴별 1차 결정 vs 최종 결정</h2>
-          <div className="rounded-2xl border border-zinc-800 overflow-hidden">
+          <h2 className="text-sm text-zinc-400 mb-3">턴별 1차 결정 vs 최종 결정</h2>
+          <div className="rounded-2xl border border-zinc-200 overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-zinc-800 text-zinc-500 text-xs">
+                <tr className="border-b border-zinc-200 text-zinc-400 text-xs bg-zinc-50">
                   <th className="px-4 py-2.5 text-left">턴</th>
                   <th className="px-4 py-2.5 text-left">날짜</th>
                   <th className="px-4 py-2.5 text-center">차트만</th>
@@ -152,13 +152,13 @@ export default function ResultScreen() {
                 {records.map((r) => {
                   const changed = r.firstChoice !== r.secondChoice
                   return (
-                    <tr key={r.turn} className={`border-b border-zinc-800/50 last:border-0 ${changed ? 'bg-white/[0.04]' : ''}`}>
-                      <td className="px-4 py-2.5 text-zinc-500 text-xs">{r.turn}</td>
-                      <td className="px-4 py-2.5 text-zinc-500 text-xs">{turnDates[r.turn - 1]}</td>
+                    <tr key={r.turn} className={`border-b border-zinc-100 last:border-0 ${changed ? 'bg-orange-50' : ''}`}>
+                      <td className="px-4 py-2.5 text-zinc-400 text-xs">{r.turn}</td>
+                      <td className="px-4 py-2.5 text-zinc-400 text-xs">{turnDates[r.turn - 1]}</td>
                       <td className="px-4 py-2.5 text-center"><ActionBadge action={r.firstChoice} /></td>
                       <td className="px-4 py-2.5 text-center"><ActionBadge action={r.secondChoice} /></td>
                       <td className="px-4 py-2.5 text-center text-xs">
-                        {changed ? <span className="text-white font-medium">⚡ 변경</span> : <span className="text-zinc-700">—</span>}
+                        {changed ? <span className="text-orange-500 font-medium">⚡ 변경</span> : <span className="text-zinc-300">—</span>}
                       </td>
                     </tr>
                   )
@@ -170,38 +170,38 @@ export default function ResultScreen() {
 
         {/* 실제 시장 결과 */}
         {aftermath && (
-          <div className="mb-8 rounded-2xl border border-white/20 bg-white/[0.04] px-6 py-5">
-            <p className="text-xs text-white mb-2 font-medium">실제 시장에서는 어떤 일이 일어났을까요?</p>
-            <p className="text-zinc-300 text-sm leading-relaxed">{aftermath}</p>
+          <div className="mb-8 rounded-2xl border border-zinc-200 bg-zinc-50 px-6 py-5">
+            <p className="text-xs text-zinc-700 mb-2 font-medium">실제 시장에서는 어떤 일이 일어났을까요?</p>
+            <p className="text-zinc-600 text-sm leading-relaxed">{aftermath}</p>
           </div>
         )}
 
         {/* 개선 팁 */}
-        <div className="mb-10 rounded-2xl border border-zinc-800 bg-zinc-900/40 px-6 py-5">
-          <p className="text-xs text-zinc-500 mb-2">투자 행동 개선 포인트</p>
-          <p className="text-zinc-200 text-sm leading-relaxed">{emotionType.tip}</p>
+        <div className="mb-10 rounded-2xl border border-zinc-200 bg-zinc-50 px-6 py-5">
+          <p className="text-xs text-zinc-400 mb-2">투자 행동 개선 포인트</p>
+          <p className="text-zinc-700 text-sm leading-relaxed">{emotionType.tip}</p>
         </div>
 
         {/* CTA */}
         <div className="flex flex-wrap gap-3 justify-center">
           <button
             onClick={reset}
-            className="px-8 py-3.5 bg-white text-black font-bold rounded-full hover:bg-zinc-200 active:scale-95 transition-all"
+            className="px-8 py-3.5 bg-zinc-900 text-white font-bold rounded-full hover:bg-zinc-700 active:scale-95 transition-all"
           >
             다시 도전하기
           </button>
           <button
             onClick={() => useGameStore.getState().setScreen('scenario')}
-            className="px-8 py-3.5 bg-zinc-900 border border-zinc-700 text-zinc-200 font-bold rounded-full hover:bg-zinc-800 active:scale-95 transition-all"
+            className="px-8 py-3.5 bg-white border border-zinc-300 text-zinc-700 font-bold rounded-full hover:bg-zinc-100 active:scale-95 transition-all"
           >
             다른 시나리오
           </button>
           <button
             onClick={handleShare}
-            className="px-8 py-3.5 bg-zinc-900 border border-zinc-700 text-zinc-200 font-bold rounded-full hover:bg-zinc-800 active:scale-95 transition-all flex items-center gap-2"
+            className="px-8 py-3.5 bg-white border border-zinc-300 text-zinc-700 font-bold rounded-full hover:bg-zinc-100 active:scale-95 transition-all flex items-center gap-2"
           >
             {copied ? (
-              <><span className="text-green-400">✓</span> 복사됨</>
+              <><span className="text-green-500">✓</span> 복사됨</>
             ) : (
               <><span>↗</span> 결과 공유</>
             )}
@@ -217,23 +217,23 @@ function StatCard({ label, value, sub, highlight, positive }: {
   label: string; value: string; sub: string; highlight?: boolean; positive?: boolean
 }) {
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 px-4 py-4">
-      <p className="text-[10px] text-zinc-500 mb-1">{label}</p>
+    <div className="rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-4">
+      <p className="text-[10px] text-zinc-400 mb-1">{label}</p>
       <p className={`text-2xl font-bold mb-0.5 ${
-        highlight ? 'text-white' : positive === true ? 'text-red-400' : positive === false ? 'text-blue-400' : 'text-white'
+        highlight ? 'text-zinc-900' : positive === true ? 'text-red-500' : positive === false ? 'text-blue-500' : 'text-zinc-900'
       }`}>{value}</p>
-      <p className="text-[10px] text-zinc-500">{sub}</p>
+      <p className="text-[10px] text-zinc-400">{sub}</p>
     </div>
   )
 }
 
 function ActionBadge({ action }: { action: string | null }) {
-  if (!action) return <span className="text-zinc-700 text-xs">—</span>
+  if (!action) return <span className="text-zinc-300 text-xs">—</span>
   const map: Record<string, { label: string; color: string }> = {
-    buy: { label: '매수', color: 'text-red-400' },
-    sell: { label: '매도', color: 'text-blue-400' },
-    hold: { label: '보유', color: 'text-zinc-400' },
+    buy: { label: '매수', color: 'text-red-500' },
+    sell: { label: '매도', color: 'text-blue-500' },
+    hold: { label: '보유', color: 'text-zinc-500' },
   }
-  const { label, color } = map[action] ?? { label: action, color: 'text-zinc-400' }
+  const { label, color } = map[action] ?? { label: action, color: 'text-zinc-500' }
   return <span className={`text-xs font-medium ${color}`}>{label}</span>
 }

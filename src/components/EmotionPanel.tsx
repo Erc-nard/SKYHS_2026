@@ -8,7 +8,7 @@ interface Props {
   isRevealed: boolean
   onConfirm: () => void
   showConfirm: boolean
-  scrollLayout?: boolean   // 모바일: 탭 없이 뉴스→커뮤니티 연속 스크롤
+  scrollLayout?: boolean
 }
 
 type Tab = 'news' | 'community'
@@ -22,10 +22,9 @@ export default function EmotionPanel({
   const news = SCENARIO_NEWS[scenarioId]?.[turnEndDate] ?? []
   const community = SCENARIO_COMMUNITY[scenarioId]?.[turnEndDate] ?? []
 
-  /* ── 잠금 상태 (공통) ── */
   if (!isRevealed) {
     return (
-      <div className={`flex flex-col items-center justify-center gap-3 text-zinc-600 ${scrollLayout ? 'py-12' : 'flex-1'}`}>
+      <div className={`flex flex-col items-center justify-center gap-3 text-zinc-400 ${scrollLayout ? 'py-12' : 'flex-1'}`}>
         <span className="text-3xl">🔒</span>
         <p className="text-sm">1차 결정 후 공개됩니다</p>
         <p className="text-xs">차트만 보고 먼저 결정해보세요</p>
@@ -33,59 +32,54 @@ export default function EmotionPanel({
     )
   }
 
-  /* ── 모바일: 연속 스크롤 레이아웃 ── */
+  /* 모바일: 연속 스크롤 */
   if (scrollLayout) {
     return (
       <div>
-        {/* 뉴스 섹션 */}
         <div className="px-4 pt-4 pb-1">
-          <p className="text-[10px] text-zinc-500 font-medium tracking-widest uppercase">📰 뉴스</p>
+          <p className="text-[10px] text-zinc-400 font-medium tracking-widest uppercase">📰 뉴스</p>
         </div>
-        <div className="divide-y divide-zinc-800/60">
+        <div className="divide-y divide-zinc-100">
           {news.length > 0 ? news.map((n, i) => (
             <div key={i} className="px-4 py-3">
-              <p className="text-sm font-semibold text-zinc-100 leading-snug mb-1">{n.title}</p>
-              <p className="text-xs text-zinc-400 leading-relaxed mb-1.5">{n.summary}</p>
-              <p className="text-[10px] text-zinc-600">{n.source} · {n.date ?? turnEndDate}</p>
+              <p className="text-sm font-semibold text-zinc-800 leading-snug mb-1">{n.title}</p>
+              <p className="text-xs text-zinc-500 leading-relaxed mb-1.5">{n.summary}</p>
+              <p className="text-[10px] text-zinc-400">{n.source} · {(n as any).date ?? turnEndDate}</p>
             </div>
-          )) : (
-            <p className="px-4 py-4 text-zinc-600 text-xs">해당 날짜 뉴스 없음</p>
-          )}
+          )) : <p className="px-4 py-4 text-zinc-400 text-xs">해당 날짜 뉴스 없음</p>}
         </div>
-
-        {/* 커뮤니티 섹션 */}
-        <div className="px-4 pt-5 pb-1 border-t border-zinc-800 mt-2">
-          <p className="text-[10px] text-zinc-500 font-medium tracking-widest uppercase">💬 커뮤니티</p>
+        <div className="px-4 pt-5 pb-1 border-t border-zinc-100 mt-2">
+          <p className="text-[10px] text-zinc-400 font-medium tracking-widest uppercase">💬 커뮤니티</p>
         </div>
-        <div className="divide-y divide-zinc-800/60">
+        <div className="divide-y divide-zinc-100">
           {community.length > 0 ? community.map((p, i) => (
             <div key={i} className="px-4 py-3">
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs font-medium text-zinc-300">{p.user}</span>
-                <span className="text-[10px] text-zinc-600">{p.time}</span>
+                <span className="text-xs font-medium text-zinc-600">{p.user}</span>
+                <span className="text-[10px] text-zinc-400">{p.time}</span>
               </div>
-              <p className="text-sm text-zinc-200 leading-relaxed mb-1.5">{p.content}</p>
-              <div className="flex gap-3 text-[10px] text-zinc-600">
+              <p className="text-sm text-zinc-700 leading-relaxed mb-1.5">{p.content}</p>
+              <div className="flex gap-3 text-[10px] text-zinc-400">
                 <span>👍 {p.likes.toLocaleString()}</span>
                 <span>💬 {p.comments.toLocaleString()}</span>
               </div>
             </div>
-          )) : (
-            <p className="px-4 py-4 text-zinc-600 text-xs">해당 날짜 게시물 없음</p>
-          )}
+          )) : <p className="px-4 py-4 text-zinc-400 text-xs">해당 날짜 게시물 없음</p>}
         </div>
       </div>
     )
   }
 
-  /* ── 데스크탑: 탭 레이아웃 ── */
+  /* 데스크탑: 탭 레이아웃 */
   return (
     <div className="flex flex-col h-full">
-      <div className="flex border-b border-zinc-800 shrink-0">
+      <div className="flex border-b border-zinc-200 shrink-0">
         {(['news', 'community'] as Tab[]).map((t) => (
           <button key={t} onClick={() => setTab(t)}
             className={`flex-1 py-2.5 text-xs font-medium transition-colors ${
-              tab === t ? 'border-b-2 border-white text-white' : 'text-zinc-500 hover:text-zinc-300'
+              tab === t
+                ? 'border-b-2 border-zinc-900 text-zinc-900'
+                : 'text-zinc-400 hover:text-zinc-600'
             }`}>
             {t === 'news' ? '📰 뉴스' : '💬 커뮤니티'}
           </button>
@@ -94,39 +88,39 @@ export default function EmotionPanel({
 
       <div className="flex-1 overflow-y-auto">
         {tab === 'news' && (
-          <div className="divide-y divide-zinc-800/60">
+          <div className="divide-y divide-zinc-100">
             {news.length > 0 ? news.map((n, i) => (
-              <div key={i} className="px-4 py-4 hover:bg-zinc-900/40 transition-colors">
-                <p className="text-sm font-semibold text-zinc-100 leading-snug mb-1.5">{n.title}</p>
-                <p className="text-xs text-zinc-400 leading-relaxed mb-2">{n.summary}</p>
-                <p className="text-[10px] text-zinc-600">{n.source} · {n.date ?? turnEndDate}</p>
+              <div key={i} className="px-4 py-4 hover:bg-zinc-50 transition-colors">
+                <p className="text-sm font-semibold text-zinc-800 leading-snug mb-1.5">{n.title}</p>
+                <p className="text-xs text-zinc-500 leading-relaxed mb-2">{n.summary}</p>
+                <p className="text-[10px] text-zinc-400">{n.source} · {(n as any).date ?? turnEndDate}</p>
               </div>
-            )) : <p className="px-4 py-6 text-zinc-600 text-sm text-center">해당 날짜 뉴스 없음</p>}
+            )) : <p className="px-4 py-6 text-zinc-400 text-sm text-center">해당 날짜 뉴스 없음</p>}
           </div>
         )}
         {tab === 'community' && (
-          <div className="divide-y divide-zinc-800/60">
+          <div className="divide-y divide-zinc-100">
             {community.length > 0 ? community.map((p, i) => (
-              <div key={i} className="px-4 py-4 hover:bg-zinc-900/40 transition-colors">
+              <div key={i} className="px-4 py-4 hover:bg-zinc-50 transition-colors">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-medium text-zinc-300">{p.user}</span>
-                  <span className="text-[10px] text-zinc-600">{p.time}</span>
+                  <span className="text-xs font-medium text-zinc-600">{p.user}</span>
+                  <span className="text-[10px] text-zinc-400">{p.time}</span>
                 </div>
-                <p className="text-sm text-zinc-200 leading-relaxed mb-2">{p.content}</p>
-                <div className="flex gap-3 text-[10px] text-zinc-600">
+                <p className="text-sm text-zinc-700 leading-relaxed mb-2">{p.content}</p>
+                <div className="flex gap-3 text-[10px] text-zinc-400">
                   <span>👍 {p.likes.toLocaleString()}</span>
                   <span>💬 {p.comments.toLocaleString()}</span>
                 </div>
               </div>
-            )) : <p className="px-4 py-6 text-zinc-600 text-sm text-center">해당 날짜 게시물 없음</p>}
+            )) : <p className="px-4 py-6 text-zinc-400 text-sm text-center">해당 날짜 게시물 없음</p>}
           </div>
         )}
       </div>
 
       {showConfirm && (
-        <div className="px-4 py-3 border-t border-zinc-800 shrink-0">
+        <div className="px-4 py-3 border-t border-zinc-200 shrink-0">
           <button onClick={onConfirm}
-            className="w-full py-3 rounded-xl bg-white text-black font-bold text-sm hover:bg-white/80 transition-colors">
+            className="w-full py-3 rounded-xl bg-orange-500 text-white font-bold text-sm hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/30">
             감정 신호 확인 완료 — 최종 결정하기 →
           </button>
         </div>

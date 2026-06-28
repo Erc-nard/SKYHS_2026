@@ -6,7 +6,6 @@ import { useCountUp } from '@/hooks/useCountUp'
 import ResizableLayout from '@/components/ResizableLayout'
 import CandleChart from '@/components/CandleChart'
 import ActionButtons from '@/components/ActionButtons'
-import TradeHistory from '@/components/TradeHistory'
 import EmotionPanel from '@/components/EmotionPanel'
 import MidCheckModal from '@/components/MidCheckModal'
 import IntroModal from '@/components/IntroModal'
@@ -17,6 +16,14 @@ const ACTION_LABEL: Record<NonNullable<Action>, string> = {
   buy: '매수 📈', sell: '매도 📉', hold: '보유 ⏸',
 }
 const PCT_OPTIONS = [10, 25, 50, 100]
+
+function getFgDescription(value: number): string {
+  if (value < 20) return `극도의 공포 (패닉/리스크 회피 강화)`
+  if (value < 40) return `공포 (방어적 포지션 확대)`
+  if (value < 60) return `중립 (방향성 탐색)`
+  if (value < 80) return `탐욕 (추격 매수·낙관 확대)`
+  return `극도의 탐욕 (과열/과도한 자신감)`
+}
 
 export default function GameScreen() {
   useScenarioLoader()
@@ -107,51 +114,54 @@ export default function GameScreen() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-screen bg-white">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
-          <p className="text-zinc-400 text-sm">시장 데이터 불러오는 중...</p>
+          <div className="w-8 h-8 border-2 border-zinc-800 border-t-transparent rounded-full animate-spin" />
+          <p className="text-zinc-500 text-sm">시장 데이터 불러오는 중...</p>
         </div>
       </div>
     )
   }
 
-  /* ── 공통 블록 ── */
+  /* ── 공포탐욕 위젯 (공통) ── */
   const fearGreedWidget = (
-    <div className="px-4 py-2.5 border-b border-zinc-800">
-      <p className="text-[10px] text-zinc-500 mb-1.5">공포탐욕지수</p>
+    <div className="px-4 py-2.5 border-b border-zinc-200">
+      <p className="text-[10px] text-zinc-400 mb-1.5">공포탐욕지수</p>
       {!fg || phase === 'first' ? (
-        <div className="flex items-center gap-2 text-zinc-600 text-xs">
+        <div className="flex items-center gap-2 text-zinc-400 text-xs">
           <span>🔒</span><span>1차 결정 후 공개</span>
         </div>
       ) : (
-        <div className="flex items-center gap-3">
-          <span className={`text-2xl font-bold font-mono transition-colors duration-500 ${
-            fgValue! >= 60 ? 'text-red-400' : fgValue! >= 40 ? 'text-white' : 'text-blue-400'
-          }`}>{fgValue}</span>
-          <div className="flex-1">
-            <div className="relative h-2 rounded-full bg-gradient-to-r from-blue-600 via-yellow-400 to-red-500 mb-1">
-              <div
-                className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white border-2 border-zinc-900 shadow transition-all duration-700 ease-out"
-                style={{ left: `calc(${gaugeDisplayVal}% - 6px)` }}
-              />
+        <div>
+          <div className="flex items-center gap-3 mb-1.5">
+            <span className={`text-2xl font-bold font-mono transition-colors duration-500 ${
+              fgValue! >= 60 ? 'text-red-500' : fgValue! >= 40 ? 'text-zinc-700' : 'text-blue-500'
+            }`}>{fgValue}</span>
+            <div className="flex-1">
+              <div className="relative h-2 rounded-full bg-gradient-to-r from-blue-500 via-yellow-400 to-red-500 mb-1">
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white border-2 border-zinc-400 shadow transition-all duration-700 ease-out"
+                  style={{ left: `calc(${gaugeDisplayVal}% - 6px)` }}
+                />
+              </div>
+              <p className={`text-[10px] ${
+                fgValue! >= 60 ? 'text-red-500' : fgValue! >= 40 ? 'text-zinc-600' : 'text-blue-500'
+              }`}>{fgLabel}</p>
             </div>
-            <p className={`text-[10px] ${
-              fgValue! >= 60 ? 'text-red-400' : fgValue! >= 40 ? 'text-white' : 'text-blue-400'
-            }`}>{fgLabel}</p>
           </div>
+          <p className="text-[10px] text-zinc-400">{getFgDescription(fgValue!)}</p>
         </div>
       )}
     </div>
   )
 
-  /* ── Desktop 패널 ── */
+  /* ── 데스크탑 좌측 패널 ── */
   const leftPanel = (
-    <div className="flex flex-col h-full border-r border-zinc-800">
-      <div className="flex items-center gap-3 px-3 py-2 border-b border-zinc-800 shrink-0">
-        <span className="font-bold text-sm">{scenario.market}</span>
+    <div className="flex flex-col h-full border-r border-zinc-200">
+      <div className="flex items-center gap-3 px-3 py-2 border-b border-zinc-200 shrink-0">
+        <span className="font-bold text-sm text-zinc-800">{scenario.market}</span>
         {currentPrice > 0 && (
-          <span className="text-white font-mono text-sm">₩{currentPrice.toLocaleString()}</span>
+          <span className="text-zinc-700 font-mono text-sm">₩{currentPrice.toLocaleString()}</span>
         )}
       </div>
       <div className="flex-1 min-h-0">
@@ -160,49 +170,50 @@ export default function GameScreen() {
     </div>
   )
 
+  /* ── 데스크탑 우측 패널 ── */
   const rightPanel = (
-    <div className="flex flex-col h-full overflow-hidden bg-[#0a0a0a]">
-      <div className="px-4 py-3 border-b border-zinc-800 shrink-0">
+    <div className="flex flex-col h-full overflow-hidden bg-white">
+      <div className="px-4 py-3 border-b border-zinc-200 shrink-0">
         <div className="flex items-start justify-between mb-2">
           <div>
-            <p className="text-2xl font-bold font-mono tracking-wide">{turnDisplayDate}</p>
-            <p className="text-xs text-zinc-500 mt-0.5">{scenario.title} · 턴 {currentTurn}/{totalTurns}</p>
+            <p className="text-2xl font-bold font-mono tracking-wide text-zinc-900">{turnDisplayDate}</p>
+            <p className="text-xs text-zinc-400 mt-0.5">{scenario.title} · 턴 {currentTurn}/{totalTurns}</p>
           </div>
           <span className={`text-[10px] px-2 py-0.5 rounded-full mt-1 transition-colors ${
-            phase === 'first' ? 'bg-zinc-800 text-zinc-400' : 'bg-white/10 text-white'
+            phase === 'first' ? 'bg-zinc-100 text-zinc-500' : 'bg-zinc-900 text-white'
           }`}>
             {phase === 'first' ? '① 1차 결정' : '② 신호 확인'}
           </span>
         </div>
-        <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
-          <div className="h-full bg-white rounded-full transition-all duration-500"
+        <div className="h-1 bg-zinc-200 rounded-full overflow-hidden">
+          <div className="h-full bg-zinc-900 rounded-full transition-all duration-500"
             style={{ width: `${(currentTurn / totalTurns) * 100}%` }} />
         </div>
       </div>
 
-      <div className="px-4 py-3 border-b border-zinc-800 shrink-0">
+      <div className="px-4 py-3 border-b border-zinc-200 shrink-0">
         <div className="mb-3">
-          <p className="text-[10px] text-zinc-500 mb-0.5">평가 자산</p>
-          <p className="text-xl font-bold font-mono">₩{animTotalAsset.toLocaleString()}</p>
-          <p className={`text-xs font-mono ${animProfit >= 0 ? 'text-red-400' : 'text-blue-400'}`}>
+          <p className="text-[10px] text-zinc-400 mb-0.5">평가 자산</p>
+          <p className="text-xl font-bold font-mono text-zinc-900">₩{animTotalAsset.toLocaleString()}</p>
+          <p className={`text-xs font-mono ${animProfit >= 0 ? 'text-red-500' : 'text-blue-500'}`}>
             {animProfit >= 0 ? '+' : ''}{animProfit.toLocaleString()} ({profitRate.toFixed(2)}%)
           </p>
         </div>
         <div className="grid grid-cols-2 gap-2 mb-3">
-          <div className="bg-zinc-900 rounded-xl px-3 py-2">
-            <p className="text-[10px] text-zinc-500 mb-0.5">현금</p>
-            <p className="text-base font-bold font-mono text-white">
+          <div className="bg-zinc-100 rounded-xl px-3 py-2">
+            <p className="text-[10px] text-zinc-400 mb-0.5">현금</p>
+            <p className="text-base font-bold font-mono text-zinc-900">
               ₩{cash >= 10000 ? `${Math.floor(cash / 10000).toLocaleString()}만` : cash.toLocaleString()}
             </p>
           </div>
-          <div className="bg-zinc-900 rounded-xl px-3 py-2">
-            <p className="text-[10px] text-zinc-500 mb-0.5">보유 {coinTicker}</p>
-            <p className="text-base font-bold font-mono text-white">{holdings > 0 ? holdings.toFixed(2) : '0'}</p>
+          <div className="bg-zinc-100 rounded-xl px-3 py-2">
+            <p className="text-[10px] text-zinc-400 mb-0.5">보유 {coinTicker}</p>
+            <p className="text-base font-bold font-mono text-zinc-900">{holdings > 0 ? holdings.toFixed(2) : '0'}</p>
             {holdings > 0 && (
-              <p className="text-[10px] text-zinc-500">
+              <p className="text-[10px] text-zinc-400">
                 ≈ ₩{Math.floor(holdingsValue / 10000).toLocaleString()}만
                 {avgPrice > 0 && (
-                  <span className={`ml-1 ${currentPrice >= avgPrice ? 'text-red-400' : 'text-blue-400'}`}>
+                  <span className={`ml-1 ${currentPrice >= avgPrice ? 'text-red-500' : 'text-blue-500'}`}>
                     ({currentPrice >= avgPrice ? '+' : ''}{(((currentPrice - avgPrice) / avgPrice) * 100).toFixed(1)}%)
                   </span>
                 )}
@@ -212,15 +223,15 @@ export default function GameScreen() {
         </div>
         {phase === 'first' && (
           <>
-            <p className="text-xs text-zinc-400 mb-2">
-              <span className="text-white font-bold">차트만 보고</span> 1차 결정 — 감정 신호 공개 전
+            <p className="text-xs text-zinc-500 mb-2">
+              <span className="text-zinc-900 font-bold">차트만 보고</span> 1차 결정 — 감정 신호 공개 전
             </p>
             <ActionButtons onSelect={handleFirstChoice} canBuy={cash > 0} canSell={holdings > 0} />
           </>
         )}
         {phase === 'emotion' && (
-          <p className="text-xs text-zinc-400 text-center py-1">
-            1차 선택: <span className="text-white font-bold">{firstChoice ? ACTION_LABEL[firstChoice] : '—'}</span>
+          <p className="text-xs text-zinc-500 text-center py-1">
+            1차 선택: <span className="text-zinc-900 font-bold">{firstChoice ? ACTION_LABEL[firstChoice] : '—'}</span>
             {' '}— 아래 감정 신호 확인 후 최종 결정
           </p>
         )}
@@ -232,26 +243,18 @@ export default function GameScreen() {
         <EmotionPanel scenarioId={scenarioId!} turnEndDate={turnEndDate}
           isRevealed={phase !== 'first'} onConfirm={openFinalModal} showConfirm={phase === 'emotion'} />
       </div>
-
-      <details className="border-t border-zinc-800 shrink-0">
-        <summary className="px-4 py-2 text-xs text-zinc-500 cursor-pointer hover:text-zinc-300 select-none">
-          매매 내역 ({records.length}건)
-        </summary>
-        <div className="px-4 pb-3 max-h-40 overflow-y-auto"><TradeHistory /></div>
-      </details>
     </div>
   )
 
-  /* ── 최종 결정 팝업 (공통) ── */
+  /* ── 최종 결정 팝업 ── */
   const finalModal = showFinalModal && (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
-      onClick={() => setShowFinalModal(false)}>
-      <div className="relative w-80 bg-[#1c1c1c] border border-zinc-700 rounded-2xl p-5 shadow-2xl"
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setShowFinalModal(false)}>
+      <div className="relative w-80 bg-white border border-zinc-200 rounded-2xl p-5 shadow-2xl animate-fade-up"
         onClick={(e) => e.stopPropagation()}>
-        <button onClick={() => setShowFinalModal(false)} className="absolute top-4 right-4 text-zinc-500 hover:text-zinc-200 text-lg leading-none">✕</button>
-        <p className="text-xs text-zinc-500 mb-0.5">최종 결정</p>
-        <p className="text-sm text-zinc-400 mb-4">
-          1차 선택: <span className="text-white font-bold">{firstChoice ? ACTION_LABEL[firstChoice] : '—'}</span>
+        <button onClick={() => setShowFinalModal(false)} className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-700 text-lg leading-none transition-colors">✕</button>
+        <p className="text-xs text-zinc-400 mb-0.5">최종 결정</p>
+        <p className="text-sm text-zinc-500 mb-4">
+          1차 선택: <span className="text-zinc-900 font-bold">{firstChoice ? ACTION_LABEL[firstChoice] : '—'}</span>
         </p>
         <div className="grid grid-cols-3 gap-2 mb-4">
           {(['buy', 'hold', 'sell'] as const).map((act) => {
@@ -259,12 +262,12 @@ export default function GameScreen() {
             return (
               <button key={act} onClick={() => !isDisabled && setModalAction(act)} disabled={isDisabled}
                 className={`py-3 rounded-xl font-bold text-sm transition-all active:scale-95 ${
-                  isDisabled ? 'opacity-30 cursor-not-allowed bg-zinc-800 text-zinc-600'
+                  isDisabled ? 'opacity-30 cursor-not-allowed bg-zinc-100 text-zinc-400'
                   : modalAction === act
-                    ? act === 'buy' ? 'bg-red-500 text-white' : act === 'sell' ? 'bg-blue-500 text-white' : 'bg-zinc-500 text-white'
-                    : act === 'buy' ? 'bg-red-500/15 border border-red-500/40 text-red-400 hover:bg-red-500/25'
-                      : act === 'sell' ? 'bg-blue-500/15 border border-blue-500/40 text-blue-400 hover:bg-blue-500/25'
-                      : 'bg-zinc-700/40 border border-zinc-600 text-zinc-300 hover:bg-zinc-700/60'
+                    ? act === 'buy' ? 'bg-red-500 text-white' : act === 'sell' ? 'bg-blue-500 text-white' : 'bg-zinc-600 text-white'
+                    : act === 'buy' ? 'bg-red-50 border border-red-300 text-red-500 hover:bg-red-100'
+                      : act === 'sell' ? 'bg-blue-50 border border-blue-300 text-blue-500 hover:bg-blue-100'
+                      : 'bg-zinc-100 border border-zinc-300 text-zinc-600 hover:bg-zinc-200'
                 }`}>
                 {act === 'buy' ? '매수' : act === 'sell' ? '매도' : '보유'}
                 {isDisabled && <span className="block text-[9px] font-normal mt-0.5">{act === 'buy' ? '현금 없음' : '보유 없음'}</span>}
@@ -274,27 +277,27 @@ export default function GameScreen() {
         </div>
         {(modalAction === 'buy' || modalAction === 'sell') && (
           <div className="mb-4">
-            <p className="text-[10px] text-zinc-500 mb-2">
+            <p className="text-[10px] text-zinc-400 mb-2">
               {modalAction === 'buy' ? '매수 비율 (현금 기준)' : '매도 비율 (수량 기준)'}
             </p>
             <div className="grid grid-cols-4 gap-1.5 mb-3">
               {PCT_OPTIONS.map((pct) => (
                 <button key={pct} onClick={() => setModalPct(pct)}
                   className={`py-2 rounded-lg text-xs font-medium transition-all active:scale-95 ${
-                    modalPct === pct ? 'bg-white text-black' : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+                    modalPct === pct ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-500 hover:bg-zinc-200'
                   }`}>{pct}%</button>
               ))}
             </div>
-            <div className="bg-zinc-900/80 rounded-xl px-3 py-2.5 text-xs">
+            <div className="bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2.5 text-xs">
               {modalAction === 'buy' ? (
-                <div className="flex justify-between text-zinc-300">
+                <div className="flex justify-between text-zinc-600">
                   <span>₩{buyAmount.toLocaleString()} 사용</span>
-                  <span className="text-red-400">≈ {(buyAmount / currentPrice).toFixed(2)} {coinTicker}</span>
+                  <span className="text-red-500">≈ {(buyAmount / currentPrice).toFixed(2)} {coinTicker}</span>
                 </div>
               ) : (
-                <div className="flex justify-between text-zinc-300">
+                <div className="flex justify-between text-zinc-600">
                   <span>{sellCoins.toFixed(2)} {coinTicker} 매도</span>
-                  <span className="text-blue-400">≈ ₩{sellValue.toLocaleString()}</span>
+                  <span className="text-blue-500">≈ ₩{sellValue.toLocaleString()}</span>
                 </div>
               )}
             </div>
@@ -302,14 +305,13 @@ export default function GameScreen() {
         )}
         <button onClick={handleSecondChoice} disabled={!modalAction}
           className={`w-full py-3 rounded-xl font-bold text-sm transition-all active:scale-95 ${
-            modalAction ? 'bg-white text-black hover:bg-white/80' : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
+            modalAction
+              ? 'bg-orange-500 text-white hover:bg-orange-600 shadow-lg shadow-orange-500/30'
+              : 'bg-zinc-100 text-zinc-400 cursor-not-allowed'
           }`}>
           {!modalAction ? '위에서 선택하세요'
             : modalAction === 'hold' ? '보유 확정'
             : `${modalAction === 'buy' ? '매수' : '매도'} ${modalPct}% 확정`}
-        </button>
-        <button onClick={() => setShowFinalModal(false)} className="mt-2 w-full py-2 text-xs text-zinc-600 hover:text-zinc-400 transition-colors">
-          취소하고 다시 보기
         </button>
       </div>
     </div>
@@ -318,17 +320,15 @@ export default function GameScreen() {
   return (
     <>
       {/* ────── 모바일 레이아웃 (<md) ────── */}
-      <div className="md:hidden flex flex-col h-screen bg-[#0a0a0a] overflow-hidden">
-
-        {/* 고정 차트 영역 */}
+      <div className="md:hidden flex flex-col h-screen bg-white overflow-hidden">
         <div className="shrink-0">
-          <div className="flex items-center gap-2 px-3 py-2 border-b border-zinc-800">
-            <span className="font-bold text-xs text-zinc-300">{scenario.market}</span>
+          <div className="flex items-center gap-2 px-3 py-2 border-b border-zinc-200">
+            <span className="font-bold text-xs text-zinc-700">{scenario.market}</span>
             {currentPrice > 0 && (
-              <span className="text-white font-mono text-xs">₩{currentPrice.toLocaleString()}</span>
+              <span className="text-zinc-800 font-mono text-xs">₩{currentPrice.toLocaleString()}</span>
             )}
             <span className={`ml-auto text-[10px] px-2 py-0.5 rounded-full ${
-              phase === 'first' ? 'bg-zinc-800 text-zinc-400' : 'bg-white/10 text-white'
+              phase === 'first' ? 'bg-zinc-100 text-zinc-500' : 'bg-zinc-900 text-white'
             }`}>
               {phase === 'first' ? '① 1차 결정' : '② 신호 확인'}
             </span>
@@ -336,43 +336,40 @@ export default function GameScreen() {
           <div className="h-[38vh]">
             <CandleChart bgCandles={bgCandles} gameCandles={visibleCandles} scenarioStartDate={scenario.startDate} />
           </div>
-          <div className="h-0.5 bg-zinc-800">
-            <div className="h-full bg-white transition-all duration-500"
+          <div className="h-0.5 bg-zinc-200">
+            <div className="h-full bg-zinc-900 transition-all duration-500"
               style={{ width: `${(currentTurn / totalTurns) * 100}%` }} />
           </div>
         </div>
 
-        {/* 스크롤 콘텐츠 */}
         <div className="flex-1 overflow-y-auto">
-          {/* 날짜 + 턴 */}
-          <div className="px-4 pt-3 pb-2 border-b border-zinc-800">
-            <p className="text-lg font-bold font-mono">{turnDisplayDate}</p>
-            <p className="text-[10px] text-zinc-500">{scenario.title} · 턴 {currentTurn}/{totalTurns}</p>
+          <div className="px-4 pt-3 pb-2 border-b border-zinc-200">
+            <p className="text-lg font-bold font-mono text-zinc-900">{turnDisplayDate}</p>
+            <p className="text-[10px] text-zinc-400">{scenario.title} · 턴 {currentTurn}/{totalTurns}</p>
           </div>
 
-          {/* 자산 요약 */}
-          <div className="px-4 py-3 border-b border-zinc-800">
+          <div className="px-4 py-3 border-b border-zinc-200">
             <div className="flex items-baseline justify-between mb-2">
               <div>
-                <p className="text-[10px] text-zinc-500">평가 자산</p>
-                <p className="text-lg font-bold font-mono">₩{animTotalAsset.toLocaleString()}</p>
+                <p className="text-[10px] text-zinc-400">평가 자산</p>
+                <p className="text-lg font-bold font-mono text-zinc-900">₩{animTotalAsset.toLocaleString()}</p>
               </div>
-              <p className={`text-sm font-mono ${animProfit >= 0 ? 'text-red-400' : 'text-blue-400'}`}>
+              <p className={`text-sm font-mono ${animProfit >= 0 ? 'text-red-500' : 'text-blue-500'}`}>
                 {animProfit >= 0 ? '+' : ''}{profitRate.toFixed(2)}%
               </p>
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <div className="bg-zinc-900 rounded-lg px-3 py-2">
-                <p className="text-[10px] text-zinc-500">현금</p>
-                <p className="text-sm font-bold font-mono text-white">
+              <div className="bg-zinc-100 rounded-lg px-3 py-2">
+                <p className="text-[10px] text-zinc-400">현금</p>
+                <p className="text-sm font-bold font-mono text-zinc-900">
                   ₩{cash >= 10000 ? `${Math.floor(cash / 10000).toLocaleString()}만` : cash.toLocaleString()}
                 </p>
               </div>
-              <div className="bg-zinc-900 rounded-lg px-3 py-2">
-                <p className="text-[10px] text-zinc-500">보유 {coinTicker}</p>
-                <p className="text-sm font-bold font-mono text-white">{holdings > 0 ? holdings.toFixed(2) : '0'}</p>
+              <div className="bg-zinc-100 rounded-lg px-3 py-2">
+                <p className="text-[10px] text-zinc-400">보유 {coinTicker}</p>
+                <p className="text-sm font-bold font-mono text-zinc-900">{holdings > 0 ? holdings.toFixed(2) : '0'}</p>
                 {holdings > 0 && avgPrice > 0 && (
-                  <p className={`text-[10px] ${currentPrice >= avgPrice ? 'text-red-400' : 'text-blue-400'}`}>
+                  <p className={`text-[10px] ${currentPrice >= avgPrice ? 'text-red-500' : 'text-blue-500'}`}>
                     {currentPrice >= avgPrice ? '+' : ''}{(((currentPrice - avgPrice) / avgPrice) * 100).toFixed(1)}%
                   </p>
                 )}
@@ -380,31 +377,28 @@ export default function GameScreen() {
             </div>
             {phase === 'emotion' && (
               <p className="text-xs text-zinc-500 text-center mt-2">
-                1차 선택: <span className="text-white font-bold">{firstChoice ? ACTION_LABEL[firstChoice] : '—'}</span>
+                1차 선택: <span className="text-zinc-900 font-bold">{firstChoice ? ACTION_LABEL[firstChoice] : '—'}</span>
               </p>
             )}
           </div>
 
-          {/* 공포탐욕 */}
           {fearGreedWidget}
 
-          {/* 뉴스 + 커뮤니티 연속 스크롤 */}
           <EmotionPanel scenarioId={scenarioId!} turnEndDate={turnEndDate}
             isRevealed={phase !== 'first'} onConfirm={openFinalModal}
             showConfirm={false} scrollLayout />
 
-          {/* 결정 버튼 */}
-          <div className="px-4 py-5 border-t border-zinc-800 mt-2">
+          <div className="px-4 py-5 border-t border-zinc-200 mt-2">
             {phase === 'first' ? (
               <>
                 <p className="text-xs text-zinc-500 mb-3 text-center">
-                  <span className="text-white font-bold">차트만 보고</span> 1차 결정하세요
+                  <span className="text-zinc-900 font-bold">차트만 보고</span> 1차 결정하세요
                 </p>
                 <ActionButtons onSelect={handleFirstChoice} canBuy={cash > 0} canSell={holdings > 0} />
               </>
             ) : (
               <button onClick={openFinalModal}
-                className="w-full py-4 rounded-xl bg-white text-black font-bold text-sm active:scale-95 transition-all">
+                className="w-full py-4 rounded-xl bg-orange-500 text-white font-bold text-sm active:scale-95 transition-all shadow-lg shadow-orange-500/30">
                 감정 신호 확인 완료 — 최종 결정하기 →
               </button>
             )}
@@ -420,7 +414,6 @@ export default function GameScreen() {
           defaultLeftPct={60} minLeftPct={35} maxLeftPct={75} />
       </div>
 
-      {/* 공통 모달 */}
       {finalModal}
       {showIntro && <IntroModal scenario={scenario} onStart={() => setShowIntro(false)} />}
       {showMidCheck && (

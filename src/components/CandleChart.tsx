@@ -12,7 +12,6 @@ interface Props {
 const INTERVALS: { key: Interval; label: string }[] = [
   { key: 'day', label: '일봉' },
   { key: 'week', label: '주봉' },
-  { key: 'month', label: '월봉' },
 ]
 
 type CandlePoint = { time: `${number}-${string}-${string}`; open: number; high: number; low: number; close: number }
@@ -39,7 +38,6 @@ export default function CandleChart({ bgCandles, gameCandles, scenarioStartDate 
     return aggregateCandles(combined, interval)
   }, [bgCandles, gameCandles, interval])
 
-  // Effect 1: 차트 생성
   useEffect(() => {
     if (!containerRef.current) return
     if (chartRef.current) { chartRef.current.remove(); chartRef.current = null }
@@ -53,10 +51,10 @@ export default function CandleChart({ bgCandles, gameCandles, scenarioStartDate 
     const chart = createChart(containerRef.current, {
       width: containerRef.current.clientWidth,
       height: containerRef.current.clientHeight,
-      layout: { background: { color: '#0a0a0a' }, textColor: '#71717a' },
-      grid: { vertLines: { color: '#141414' }, horzLines: { color: '#141414' } },
-      timeScale: { borderColor: '#3f3f46', timeVisible: true },
-      rightPriceScale: { borderColor: '#3f3f46' },
+      layout: { background: { color: '#ffffff' }, textColor: '#52525b' },
+      grid: { vertLines: { color: '#f4f4f5' }, horzLines: { color: '#f4f4f5' } },
+      timeScale: { borderColor: '#d4d4d8', timeVisible: true },
+      rightPriceScale: { borderColor: '#d4d4d8' },
       crosshair: { mode: 1 },
     })
 
@@ -95,12 +93,10 @@ export default function CandleChart({ bgCandles, gameCandles, scenarioStartDate 
     }
   }, [interval])
 
-  // Effect 2: 데이터 업데이트
   useEffect(() => {
     if (!chartRef.current || !candleSeriesRef.current || !volumeSeriesRef.current) return
     if (chartData.length === 0) return
 
-    // Clear pending reveal timers
     timersRef.current.forEach(clearTimeout)
     timersRef.current = []
 
@@ -121,7 +117,7 @@ export default function CandleChart({ bgCandles, gameCandles, scenarioStartDate 
       if (startCandle && candleSeriesRef.current) {
         candleSeriesRef.current.setMarkers([{
           time: startCandle.time, position: 'belowBar',
-          color: '#ffffff', shape: 'arrowUp', text: '게임 시작',
+          color: '#18181b', shape: 'arrowUp', text: '게임 시작',
         }])
       }
     }
@@ -130,7 +126,6 @@ export default function CandleChart({ bgCandles, gameCandles, scenarioStartDate 
     const newLen = candleData.length
 
     if (hasInitialFit.current && prevLen > 0 && newLen > prevLen) {
-      // 새 캔들 순차 공개 애니메이션
       candleSeriesRef.current.setData(candleData.slice(0, prevLen))
       volumeSeriesRef.current.setData(volumeData.slice(0, prevLen))
       applyMarker(candleData.slice(0, prevLen))
@@ -144,7 +139,6 @@ export default function CandleChart({ bgCandles, gameCandles, scenarioStartDate 
           candleSeriesRef.current.setData(slice)
           volumeSeriesRef.current.setData(volumeData.slice(0, idx + 1))
           applyMarker(slice)
-          // 마지막 새 캔들 공개 후 우측으로 스크롤
           if (idx === newLen - 1) {
             chartRef.current.timeScale().scrollToRealTime()
           }
@@ -167,13 +161,13 @@ export default function CandleChart({ bgCandles, gameCandles, scenarioStartDate 
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex gap-1 px-3 py-2 border-b border-zinc-800">
+      <div className="flex gap-1 px-3 py-2 border-b border-zinc-200">
         {INTERVALS.map(({ key, label }) => (
           <button
             key={key}
             onClick={() => setInterval(key)}
             className={`px-3 py-1 text-xs rounded font-medium transition-colors ${
-              interval === key ? 'bg-white text-black' : 'text-zinc-400 hover:text-zinc-200'
+              interval === key ? 'bg-zinc-900 text-white' : 'text-zinc-500 hover:text-zinc-800'
             }`}
           >
             {label}
@@ -182,7 +176,7 @@ export default function CandleChart({ bgCandles, gameCandles, scenarioStartDate 
       </div>
       <div className="flex-1 relative">
         {chartData.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center text-zinc-500 text-sm">
+          <div className="absolute inset-0 flex items-center justify-center text-zinc-400 text-sm">
             차트 로딩 중...
           </div>
         )}
