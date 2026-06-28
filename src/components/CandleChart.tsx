@@ -98,15 +98,19 @@ export default function CandleChart({ bgCandles, gameCandles, scenarioStartDate 
     chart.timeScale().fitContent()
     chartRef.current = chart
 
-    const handleResize = () => {
+    // window resize가 아닌 요소 크기 변화(패널 드래그 포함)를 감지
+    const ro = new ResizeObserver(() => {
       if (containerRef.current && chartRef.current) {
-        chartRef.current.applyOptions({ width: containerRef.current.clientWidth })
+        chartRef.current.applyOptions({
+          width: containerRef.current.clientWidth,
+          height: containerRef.current.clientHeight,
+        })
       }
-    }
-    window.addEventListener('resize', handleResize)
+    })
+    ro.observe(containerRef.current)
 
     return () => {
-      window.removeEventListener('resize', handleResize)
+      ro.disconnect()
       chart.remove()
       chartRef.current = null
     }
