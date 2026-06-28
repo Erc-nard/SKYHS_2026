@@ -146,6 +146,7 @@ export default function ResultScreen() {
                   <th className="px-4 py-2.5 text-center">차트만</th>
                   <th className="px-4 py-2.5 text-center">감정 후</th>
                   <th className="px-4 py-2.5 text-center">변경</th>
+                  <th className="px-4 py-2.5 text-right">누적 손익</th>
                 </tr>
               </thead>
               <tbody>
@@ -159,6 +160,22 @@ export default function ResultScreen() {
                       <td className="px-4 py-2.5 text-center"><ActionBadge action={r.secondChoice} /></td>
                       <td className="px-4 py-2.5 text-center text-xs">
                         {changed ? <span className="text-orange-500 font-medium">⚡ 변경</span> : <span className="text-zinc-300">—</span>}
+                      </td>
+                      <td className="px-4 py-2.5 text-right text-xs font-mono">
+                        {r.assetAfter !== null ? (
+                          (() => {
+                            const cumPnl = r.assetAfter - 100_000_000
+                            const cumRate = (cumPnl / 100_000_000) * 100
+                            return (
+                              <span className={cumPnl >= 0 ? 'text-red-500' : 'text-blue-500'}>
+                                {cumPnl >= 0 ? '+' : ''}{Math.round(cumPnl / 10000).toLocaleString()}만
+                                <span className="text-[10px] ml-0.5 opacity-70">({cumRate >= 0 ? '+' : ''}{cumRate.toFixed(1)}%)</span>
+                              </span>
+                            )
+                          })()
+                        ) : (
+                          <span className="text-zinc-300">—</span>
+                        )}
                       </td>
                     </tr>
                   )
