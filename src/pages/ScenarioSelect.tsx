@@ -22,8 +22,8 @@ export default function ScenarioSelect() {
               className={`
                 group flex flex-col items-start gap-3 p-5 rounded-xl text-left transition-all duration-150
                 ${s.available
-                  ? 'bg-zinc-100 hover:bg-zinc-200 cursor-pointer border border-zinc-200'
-                  : 'bg-zinc-50 opacity-50 cursor-not-allowed border border-zinc-200'
+                  ? 'bg-zinc-100 hover:bg-zinc-200 cursor-pointer border border-zinc-400'
+                  : 'bg-zinc-50 opacity-50 cursor-not-allowed border border-zinc-300'
                 }
               `}
             >

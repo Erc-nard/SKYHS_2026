@@ -50,6 +50,8 @@ export default function GameScreen() {
   const coinTicker = scenario.market.split('-')[1]
   const visibleCandles = candles.slice(0, currentTurn * scenario.intervalDays)
   const currentPrice = visibleCandles[visibleCandles.length - 1]?.trade_price ?? 0
+  const prevPrice = visibleCandles[visibleCandles.length - 2]?.trade_price ?? 0
+  const priceUp = prevPrice > 0 ? currentPrice >= prevPrice : null
   const turnDisplayDate = getTurnStartDate(scenario, currentTurn)
   const turnEndDate = getTurnEndDate(scenario, currentTurn)
 
@@ -161,7 +163,9 @@ export default function GameScreen() {
       <div className="flex items-center gap-3 px-3 py-2 border-b border-zinc-200 shrink-0">
         <span className="font-bold text-sm text-zinc-800">{scenario.market}</span>
         {currentPrice > 0 && (
-          <span className="text-zinc-700 font-mono text-sm">₩{currentPrice.toLocaleString()}</span>
+          <span className={`font-bold font-mono text-sm ${priceUp === true ? 'text-red-500' : priceUp === false ? 'text-blue-500' : 'text-zinc-700'}`}>
+            ₩{currentPrice.toLocaleString()}
+          </span>
         )}
       </div>
       <div className="flex-1 min-h-0">
@@ -325,7 +329,9 @@ export default function GameScreen() {
           <div className="flex items-center gap-2 px-3 py-2 border-b border-zinc-200">
             <span className="font-bold text-xs text-zinc-700">{scenario.market}</span>
             {currentPrice > 0 && (
-              <span className="text-zinc-800 font-mono text-xs">₩{currentPrice.toLocaleString()}</span>
+              <span className={`font-bold font-mono text-xs ${priceUp === true ? 'text-red-500' : priceUp === false ? 'text-blue-500' : 'text-zinc-700'}`}>
+                ₩{currentPrice.toLocaleString()}
+              </span>
             )}
             <span className={`ml-auto text-[10px] px-2 py-0.5 rounded-full ${
               phase === 'first' ? 'bg-zinc-100 text-zinc-500' : 'bg-zinc-900 text-white'
