@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useGameStore } from '@/store/gameStore'
-import { SCENARIOS, getTurnStartDate } from '@/data/scenarios'
+import { SCENARIOS, getTurnStartDate, getTurnEndDate } from '@/data/scenarios'
 import ResultChart from '@/components/ResultChart'
 
 const EMOTION_TYPES = [
@@ -50,7 +50,7 @@ const SCENARIO_AFTERMATH: Record<number, string> = {
 }
 
 export default function ResultScreen() {
-  const { records, candles, scenarioId, cash, holdings, reset } = useGameStore()
+  const { records, candles, scenarioId, cash, holdings, reset, fearGreedMap } = useGameStore()
   const [copied, setCopied] = useState(false)
 
   const scenario = SCENARIOS.find((s) => s.id === scenarioId)!
@@ -60,6 +60,88 @@ export default function ResultScreen() {
   )
 
   const completed = records.filter((r) => r.secondChoice !== null)
+  const candleByDate = new Map(candles.map((c) => [c.candle_date_time_kst.slice(0, 10), c.trade_price] as const))
+  const getPriceByTurn = (turn: number) => candleByDate.get(getTurnEndDate(scenario, turn)) ?? null
+  const getMaxPriceBeforeTurn = (turn: number) => {
+    const prevPrices = Array.from({ length: turn - 1 }, (_, i) => getPriceByTurn(i + 1)).filter(
+      (price): price is number => price !== null
+    )
+    return prevPrices.length ? Math.max(...prevPrices) : null
+  }
+  const getFgByTurn = (turn: number) => fearGreedMap[getTurnEndDate(scenario, turn)]?.value ?? null
+  const sellFgValues = completed
+    .filter((r) => r.secondChoice === 'sell')
+    .map((r) => getFgByTurn(r.turn))
+    .filter((value): value is number => value !== null)
+  const buyFgValues = completed
+    .filter((r) => r.secondChoice === 'buy')
+    .map((r) => getFgByTurn(r.turn))
+    .filter((value): value is number => value !== null)
+  const avgSellFg = sellFgValues.length
+    ? Math.round(sellFgValues.reduce((sum, value) => sum + value, 0) / sellFgValues.length)
+    : null
+  const avgBuyFg = buyFgValues.length
+    ? Math.round(buyFgValues.reduce((sum, value) => sum + value, 0) / buyFgValues.length)
+    : null
+  const sellTendency = avgSellFg === null ? null : avgSellFg >= 50 ? '높은 공포탐욕지수에서 매도' : '낮은 공포탐욕지수에서 매도'
+  const buyTendency = avgBuyFg === null ? null : avgBuyFg >= 50 ? '높은 공포탐욕지수에서 매수' : '낮은 공포탐욕지수에서 매수'
+  const fomoBuyCount = completed.filter((r) => {
+    if (r.secondChoice !== 'buy' || r.tradePrice === null || r.turn <= 1) return false
+    const peakPrice = getMaxPriceBeforeTurn(r.turn)
+    return peakPrice !== null && r.tradePrice >= peakPrice
+  }).length
+  const panicSellCount = completed.filter((r) => {
+    if (r.secondChoice !== 'sell' || r.tradePrice === null || r.turn <= 1) return false
+    const prevPrice = getPriceByTurn(r.turn - 1)
+    return prevPrice !== null && r.tradePrice < prevPrice
+  }).length
+  const buyCount = completed.filter((r) => r.secondChoice === 'buy').length
+  const sellCount = completed.filter((r) => r.secondChoice === 'sell').length
+  const fomoIndex = buyCount ? Math.round((fomoBuyCount / buyCount) * 100) : null
+  const panicSellIndex = sellCount ? Math.round((panicSellCount / sellCount) * 100) : null
+  const fomoScore = fomoIndex !== null ? `${fomoIndex}%` : null
+  const panicSellScore = panicSellIndex !== null ? `${panicSellIndex}%` : null
+  const fomoDescription = fomoIndex === null
+    ? null
+    : fomoIndex < 34
+    ? '낮은 추격매수 비율'
+    : fomoIndex < 67
+    ? '보통 수준의 추격매수 비율'
+    : '높은 추격매수 비율'
+  const panicSellDescription = panicSellIndex === null
+    ? null
+    : panicSellIndex < 34
+    ? '낮은 급매도 비율'
+    : panicSellIndex < 67
+    ? '보통 수준의 급매도 비율'
+    : '높은 급매도 비율'
+  const fomoPanicSummary = fomoDescription && panicSellDescription
+    ? `${fomoDescription}과 ${panicSellDescription}을 보입니다.`
+    : null
+  const fgBehaviorText = avgSellFg !== null && avgBuyFg !== null
+    ? `당신은 ${buyTendency}하고\n${sellTendency}하는 경향이 있습니다.`
+    : null
+  const adviceLines: string[] = []
+  if (avgSellFg !== null && avgBuyFg !== null) {
+    if (avgSellFg >= 50 && avgBuyFg < 50) {
+      adviceLines.push('매도는 탐욕 구간, 매수는 공포 구간에서 이루어졌습니다. 초보자는 계획된 진입/청산 기준을 세워 감정 매매를 줄이세요.')
+    } else if (avgSellFg < 50 && avgBuyFg >= 50) {
+      adviceLines.push('매도는 공포 구간, 매수는 탐욕 구간에서 이루어졌습니다. 시장의 반란적 심리에 휩쓸리지 않도록 분할 매수/분할 매도를 고려하세요.')
+    } else if (avgSellFg >= 50 && avgBuyFg >= 50) {
+      adviceLines.push('매수와 매도가 모두 탐욕 구간에서 발생했습니다. 차트와 리스크 관리를 우선해 과도한 추격 매수/매도는 피하세요.')
+    } else {
+      adviceLines.push('매수와 매도가 모두 공포 구간에서 발생했습니다. 초보자는 감정이 격해질 때 무리한 거래를 자제하고 원칙을 지키세요.')
+    }
+  }
+  if (fomoIndex !== null && fomoIndex >= 50) {
+    adviceLines.push('FOMO 지수가 높습니다. 놓치지 않으려는 심리보다 자금 관리와 분할 진입을 먼저 생각하세요.')
+  }
+  if (panicSellIndex !== null && panicSellIndex >= 50) {
+    adviceLines.push('패닉셀 지수가 높습니다. 급락 구간에서 성급한 청산을 피하려면 손절 기준과 매수 여력부터 먼저 준비하세요.')
+  }
+  if (!adviceLines.length) {
+    adviceLines.push('거래 데이터가 충분하지 않거나 감정 지표가 비교적 안정적입니다. 꾸준히 원칙을 지키며 경험을 쌓아보세요.')
+  }
   const swayCount = completed.filter((r) => r.firstChoice !== r.secondChoice).length
   const swayRate = completed.length > 0 ? Math.round((swayCount / completed.length) * 100) : 0
 
@@ -68,9 +150,6 @@ export default function ResultScreen() {
   const finalAsset = cash + holdings * finalPrice
   const profit = finalAsset - 100_000_000
   const profitRate = (profit / 100_000_000) * 100
-
-  const buyCount = completed.filter((r) => r.secondChoice === 'buy').length
-  const sellCount = completed.filter((r) => r.secondChoice === 'sell').length
 
   const emotionType = getEmotionType(swayRate)
   const aftermath = SCENARIO_AFTERMATH[scenarioId ?? 1]
@@ -108,6 +187,55 @@ export default function ResultScreen() {
           <div className="text-7xl mb-4">{emotionType.emoji}</div>
           <h1 className="text-4xl font-bold mb-2 text-zinc-900">{emotionType.name}</h1>
           <p className="text-zinc-500 max-w-md mx-auto leading-relaxed">{emotionType.desc}</p>
+        </div>
+
+        <div className="mb-8 rounded-2xl border border-zinc-200 bg-zinc-50 px-6 py-5">
+          <div className="grid grid-cols-1 gap-4 text-sm text-zinc-600 md:grid-cols-2">
+            <div className="rounded-2xl border border-zinc-200 bg-white p-4 md:min-h-[220px] md:flex md:flex-col md:justify-between">
+              <div>
+                <p className="text-sm font-bold text-zinc-700 mb-3">공포탐욕지수 분석</p>
+                <div className="text-xs text-zinc-400 mb-4">매수/매도 시 각각의 평균 공포탐욕지수를 평가합니다.</div>
+                <div className="flex flex-col gap-3 md:flex-row md:items-center">
+                  <div className="flex-1 text-center p-4 rounded-2xl">
+                    <p className="text-[10px] text-zinc-400 mb-1.5">매수 시 평균 공탐지수</p>
+                    <p className="text-3xl font-bold text-red-500">{avgBuyFg !== null ? `${avgBuyFg}점` : '데이터 없음'}</p>
+                  </div>
+                  <div className="hidden md:block h-16 w-px bg-zinc-200" />
+                  <div className="flex-1 text-center p-4 rounded-2xl">
+                    <p className="text-[10px] text-zinc-400 mb-1.5">매도 시 평균 공탐지수</p>
+                    <p className="text-3xl font-bold text-blue-500">{avgSellFg !== null ? `${avgSellFg}점` : '데이터 없음'}</p>
+                  </div>
+                </div>
+              </div>
+              <p className="mt-4 whitespace-pre-wrap text-sm text-zinc-600">{fgBehaviorText ?? '매수 또는 매도 데이터가 부족해 공포탐욕지수 기반 경향을 평가할 수 없습니다.'}</p>
+            </div>
+            <div className="rounded-2xl border border-zinc-200 bg-white p-4 md:min-h-[220px] md:flex md:flex-col md:justify-start">
+              <div>
+                <p className="text-sm font-bold text-zinc-700 mb-3">FOMO / 패닉셀 지수 분석</p>
+                <div className="text-xs text-zinc-400 mb-4">FOMO는 추격매수, 패닉셀은 급락 후 급매도를 보여줍니다.</div>
+                <div className="flex flex-col gap-3 md:flex-row md:items-center">
+                  <div className="flex-1 text-center p-4 rounded-2xl">
+                    <p className="text-[10px] text-zinc-400 mb-1.5">FOMO 지수</p>
+                    <p className="text-3xl font-bold text-rose-500">{fomoScore ?? '데이터 없음'}</p>
+                  </div>
+                  <div className="hidden md:block h-16 w-px bg-zinc-200" />
+                  <div className="flex-1 text-center p-4 rounded-2xl">
+                    <p className="text-[10px] text-zinc-400 mb-1.5">패닉셀 지수</p>
+                    <p className="text-3xl font-bold text-sky-500">{panicSellScore ?? '데이터 없음'}</p>
+                  </div>
+                </div>
+              </div>
+              <p className="mt-4 text-sm text-zinc-600">{fomoPanicSummary ?? '데이터가 부족해 특징을 표시할 수 없습니다.'}</p>
+            </div>
+          </div>
+          <div className="mt-4 rounded-2xl bg-white border border-zinc-200 p-4 text-sm text-zinc-700">
+            <p className="font-semibold text-zinc-900 mb-2">입문자를 위한 투자 조언</p>
+            <ul className="list-disc list-inside space-y-2">
+              {adviceLines.map((line, index) => (
+                <li key={index}>{line}</li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         {/* 핵심 지표 */}
