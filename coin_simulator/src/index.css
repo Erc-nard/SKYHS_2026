@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0;
+  font-family: 'Pretendard', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #1e232b;
+  background: #f4f6f9;
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+@keyframes tremble {
+  0%,100% { transform: translate(0,0); }
+  25% { transform: translate(-2px,1px); }
+  50% { transform: translate(2px,-1px); }
+  75% { transform: translate(-1px,-1px); }
+}
+@keyframes pulseGrow {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+@keyframes ringPulse {
+  0% { transform: scale(.55); opacity: .55; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+@keyframes floatUp {
+  0% { opacity: 0; transform: translateY(10px); }
+  30% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pop {
+  0% { transform: scale(.94); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes diceShake {
+  0% { left: 50%; }
+  15% { left: 24%; }
+  30% { left: 72%; }
+  45% { left: 38%; }
+  60% { left: 64%; }
+  80% { left: 46%; }
+  100% { left: var(--land); }
+}
+
+.anim-fadeIn { animation: fadeIn .4s ease; }
+.anim-pop { animation: pop .2s ease; }
+.anim-tremble { animation: tremble .35s infinite; }
+.anim-pulseGrow { animation: pulseGrow 1.2s infinite; }
+.anim-ringPulse { animation: ringPulse 1.8s ease-out infinite; }
