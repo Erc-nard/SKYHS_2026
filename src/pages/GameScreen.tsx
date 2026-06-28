@@ -83,7 +83,7 @@ export default function GameScreen() {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-signal border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
           <p className="text-zinc-400 text-sm">시장 데이터 불러오는 중...</p>
         </div>
       </div>
@@ -109,7 +109,7 @@ export default function GameScreen() {
   )
 
   const rightPanel = (
-    <div className="flex flex-col h-full overflow-hidden bg-void">
+    <div className="flex flex-col h-full overflow-hidden bg-[#0a0a0a]">
 
       {/* 날짜 + 턴 */}
       <div className="px-4 py-3 border-b border-zinc-800 shrink-0">
@@ -119,13 +119,13 @@ export default function GameScreen() {
             <p className="text-xs text-zinc-500 mt-0.5">{scenario.title} · 턴 {currentTurn}/{totalTurns}</p>
           </div>
           <span className={`text-[10px] px-2 py-0.5 rounded-full mt-1 ${
-            phase === 'first' ? 'bg-zinc-700 text-zinc-300' : 'bg-signal/20 text-signal'
+            phase === 'first' ? 'bg-zinc-700 text-zinc-300' : 'bg-white/10 text-white'
           }`}>
             {phase === 'first' ? '① 1차 결정' : '② 신호 확인'}
           </span>
         </div>
         <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
-          <div className="h-full bg-signal rounded-full transition-all" style={{ width: `${(currentTurn / totalTurns) * 100}%` }} />
+          <div className="h-full bg-white rounded-full transition-all" style={{ width: `${(currentTurn / totalTurns) * 100}%` }} />
         </div>
       </div>
 
@@ -172,14 +172,14 @@ export default function GameScreen() {
         {phase === 'first' && (
           <>
             <p className="text-xs text-zinc-400 mb-2">
-              <span className="text-signal font-bold">차트만 보고</span> 1차 결정 — 감정 신호 공개 전
+              <span className="text-white font-bold">차트만 보고</span> 1차 결정 — 감정 신호 공개 전
             </p>
             <ActionButtons onSelect={handleFirstChoice} />
           </>
         )}
         {phase === 'emotion' && (
           <p className="text-xs text-zinc-400 text-center py-1">
-            1차 선택: <span className="text-signal font-bold">
+            1차 선택: <span className="text-white font-bold">
               {firstChoice ? ACTION_LABEL[firstChoice] : '—'}
             </span> — 아래 감정 신호 확인 후 최종 결정
           </p>
@@ -196,7 +196,7 @@ export default function GameScreen() {
         ) : (
           <div className="flex items-center gap-3">
             <span className={`text-2xl font-bold font-mono ${
-              fgValue! >= 60 ? 'text-red-400' : fgValue! >= 40 ? 'text-signal' : 'text-blue-400'
+              fgValue! >= 60 ? 'text-red-400' : fgValue! >= 40 ? 'text-white' : 'text-blue-400'
             }`}>{fgValue}</span>
             <div className="flex-1">
               <div className="relative h-2 rounded-full bg-gradient-to-r from-blue-600 via-yellow-400 to-red-500 mb-1">
@@ -204,7 +204,7 @@ export default function GameScreen() {
                   style={{ left: `calc(${fgValue}% - 6px)` }} />
               </div>
               <p className={`text-[10px] ${
-                fgValue! >= 60 ? 'text-red-400' : fgValue! >= 40 ? 'text-signal' : 'text-blue-400'
+                fgValue! >= 60 ? 'text-red-400' : fgValue! >= 40 ? 'text-white' : 'text-blue-400'
               }`}>{fgLabel}</p>
             </div>
           </div>
@@ -258,7 +258,7 @@ export default function GameScreen() {
 
             <p className="text-xs text-zinc-500 mb-0.5">최종 결정</p>
             <p className="text-sm text-zinc-400 mb-4">
-              1차 선택: <span className="text-signal font-bold">{firstChoice ? ACTION_LABEL[firstChoice] : '—'}</span>
+              1차 선택: <span className="text-white font-bold">{firstChoice ? ACTION_LABEL[firstChoice] : '—'}</span>
             </p>
 
             {/* 액션 선택 */}
@@ -303,7 +303,7 @@ export default function GameScreen() {
                       key={pct}
                       onClick={() => setModalPct(pct)}
                       className={`py-2 rounded-lg text-xs font-medium transition-colors ${
-                        modalPct === pct ? 'bg-signal text-black' : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+                        modalPct === pct ? 'bg-white text-black' : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
                       }`}
                     >
                       {pct}%
@@ -334,7 +334,7 @@ export default function GameScreen() {
               disabled={!modalAction}
               className={`w-full py-3 rounded-xl font-bold text-sm transition-colors ${
                 modalAction
-                  ? 'bg-signal text-black hover:bg-signal/80'
+                  ? 'bg-white text-black hover:bg-white/80'
                   : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
               }`}
             >
@@ -355,4 +355,5 @@ export default function GameScreen() {
     </>
   )
 }
+
 

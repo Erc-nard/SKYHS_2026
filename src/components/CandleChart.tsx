@@ -45,8 +45,8 @@ export default function CandleChart({ bgCandles, gameCandles, scenarioStartDate 
     const chart = createChart(containerRef.current, {
       width: containerRef.current.clientWidth,
       height: containerRef.current.clientHeight,
-      layout: { background: { color: '#060C1A' }, textColor: '#94a3b8' },
-      grid: { vertLines: { color: '#0e1628' }, horzLines: { color: '#0e1628' } },
+      layout: { background: { color: '#0a0a0a' }, textColor: '#71717a' },
+      grid: { vertLines: { color: '#141414' }, horzLines: { color: '#141414' } },
       timeScale: { borderColor: '#3f3f46', timeVisible: true },
       rightPriceScale: { borderColor: '#3f3f46' },
       crosshair: { mode: 1 },
@@ -121,7 +121,7 @@ export default function CandleChart({ bgCandles, gameCandles, scenarioStartDate 
       candleSeriesRef.current.setMarkers([{
         time: startCandle.time,
         position: 'belowBar',
-        color: '#facc15',
+        color: '#ffffff',
         shape: 'arrowUp',
         text: '게임 시작',
       }])
@@ -151,7 +151,7 @@ export default function CandleChart({ bgCandles, gameCandles, scenarioStartDate 
             key={key}
             onClick={() => setInterval(key)}
             className={`px-3 py-1 text-xs rounded font-medium transition-colors ${
-              interval === key ? 'bg-signal text-black' : 'text-zinc-400 hover:text-zinc-200'
+              interval === key ? 'bg-white text-black' : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
             {label}
@@ -170,4 +170,5 @@ export default function CandleChart({ bgCandles, gameCandles, scenarioStartDate 
     </div>
   )
 }
+
 

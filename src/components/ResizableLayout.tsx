@@ -53,7 +53,7 @@ export default function ResizableLayout({
           document.body.style.cursor = 'col-resize'
           document.body.style.userSelect = 'none'
         }}
-        className="w-1 shrink-0 bg-zinc-800 hover:bg-signal active:bg-signal cursor-col-resize transition-colors"
+        className="w-1 shrink-0 bg-zinc-800 hover:bg-white active:bg-white cursor-col-resize transition-colors"
         title="드래그해서 크기 조절"
       />
 
@@ -64,4 +64,5 @@ export default function ResizableLayout({
     </div>
   )
 }
+
 

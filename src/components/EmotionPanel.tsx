@@ -33,7 +33,7 @@ export default function EmotionPanel({ scenarioId, turnEndDate, isRevealed, onCo
             onClick={() => isRevealed && setTab(t)}
             className={`flex-1 py-2.5 text-xs font-medium transition-colors ${
               tab === t && isRevealed
-                ? 'border-b-2 border-signal text-signal'
+                ? 'border-b-2 border-white text-white'
                 : 'text-zinc-500 hover:text-zinc-300'
             } ${!isRevealed ? 'cursor-not-allowed opacity-40' : ''}`}
           >
@@ -95,7 +95,7 @@ export default function EmotionPanel({ scenarioId, turnEndDate, isRevealed, onCo
         <div className="px-4 py-3 border-t border-zinc-800 shrink-0">
           <button
             onClick={onConfirm}
-            className="w-full py-3 rounded-xl bg-signal text-black font-bold text-sm hover:bg-signal/80 transition-colors"
+            className="w-full py-3 rounded-xl bg-white text-black font-bold text-sm hover:bg-white/80 transition-colors"
           >
             감정 신호 확인 완료 — 최종 결정하기 →
           </button>
@@ -104,4 +104,5 @@ export default function EmotionPanel({ scenarioId, turnEndDate, isRevealed, onCo
     </div>
   )
 }
+
 

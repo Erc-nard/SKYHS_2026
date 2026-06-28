@@ -1,4 +1,4 @@
-import { useGameStore } from '@/store/gameStore'
+﻿import { useGameStore } from '@/store/gameStore'
 import { SCENARIOS } from '@/data/scenarios'
 
 export default function ScenarioSelect() {
@@ -9,7 +9,7 @@ export default function ScenarioSelect() {
       <div className="relative z-10 w-full max-w-2xl">
 
         <div className="mb-12 text-center">
-          <p className="font-mono text-signal text-[10px] tracking-[0.25em] uppercase mb-4">
+          <p className="font-mono text-white text-[10px] tracking-[0.25em] uppercase mb-4">
             SCENARIO SELECT
           </p>
           <h2 className="text-3xl font-extrabold text-slate-50">어떤 시장을 경험하겠습니까?</h2>
@@ -25,7 +25,7 @@ export default function ScenarioSelect() {
               className={`
                 group relative flex flex-col items-start gap-4 p-6 rounded-2xl border text-left transition-all duration-200
                 ${s.available
-                  ? 'border-slate-800 bg-slate-900/40 hover:border-signal/50 hover:bg-slate-900/80 cursor-pointer'
+                  ? 'border-slate-800 bg-slate-900/40 hover:border-white/30 hover:bg-slate-900/80 cursor-pointer'
                   : 'border-slate-800/50 bg-slate-900/20 opacity-40 cursor-not-allowed'
                 }
               `}
@@ -42,7 +42,7 @@ export default function ScenarioSelect() {
               )}
 
               <div className="mt-1">
-                <p className="text-lg font-bold text-slate-100 mb-1.5 group-hover:text-signal transition-colors">
+                <p className="text-lg font-bold text-slate-100 mb-1.5 group-hover:text-white transition-colors">
                   {s.title}
                 </p>
                 <p className="text-slate-400 text-sm leading-relaxed">{s.description}</p>
@@ -50,7 +50,7 @@ export default function ScenarioSelect() {
 
               <div className="flex flex-wrap gap-1.5">
                 {s.tags.map((tag) => (
-                  <span key={tag} className="text-[10px] font-mono text-signal bg-signal/10 px-2 py-0.5 rounded">
+                  <span key={tag} className="text-[10px] font-mono text-white bg-white/[0.07] px-2 py-0.5 rounded">
                     {tag}
                   </span>
                 ))}
@@ -70,3 +70,4 @@ export default function ScenarioSelect() {
     </div>
   )
 }
+
